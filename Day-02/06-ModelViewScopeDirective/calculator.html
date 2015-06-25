@@ -3,19 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>Calculator</title>
-    <link rel="stylesheet" href="style.css">
+    <!--<link rel="stylesheet" href="style.css">-->
+    <script src="angular.min.js"></script>
+    <script>
+    Object.prototype.toInt = function(){
+        return parseInt(this,10);
+    };
+    </script>
+    <script>
+        function getCalculator(){
+            return {
+                add : function(n1, n2){
+                    return n1 + n2;
+                },
+                subtract : function(n1, n2){
+                    return n1 - n2;
+                },
+                multiply : function(n1, n2){
+                    return n1 * n2;
+                },
+                divide : function(n1, n2){
+                    return n1 / n2;
+                }
+            };
+        }
 
+        var calculatorApp = angular.module('calculatorApp',[]);
+        calculatorApp.run(function($rootScope){
+            $rootScope.userName = "Magesh";
+        })
+        calculatorApp.controller("calculatorController", function($scope){
+            $scope.getMessage = function(){
+                return 'Welcome ' + $scope.userName;
+            };
+            $scope.result = 0;
+            $scope.number1 = '';
+            $scope.number2 = '';
+            $scope.operation = '';
+            var calculator = getCalculator();
+            $scope.calculate = function(){
+                var n1 = $scope.number1.toInt(),
+                    n2 = $scope.number2.toInt();
+                $scope.result = calculator[$scope.operation](n1, n2);
+            };
+        });
+
+    </script>
 </head>
-<body>
-    <input type="text" name="" id="txtNumber1">
-    <select>
+<body ng-app="calculatorApp">
+  <header >
+      <h4 ng-bind="userName"></h4>
+  </header>
+  <section ng-controller="calculatorController">
+    <h3 ng-bind="getMessage()"></h3>
+    <input type="text" name="" id="txtNumber1" ng-model="number1">
+    <select ng-model="operation">
         <option value="add">add</option>
         <option value="subtract">subtract</option>
         <option value="multiply">multiply</option>
         <option value="divide">divide</option>
     </select>
-    <input type="text" name="" id="txtNumber2">
-    <input type="button" value="Calculate" id="btnCalculate">
-    <div id="divResult">[Result]</div>
+    <input type="text" name="" id="txtNumber2" ng-model="number2">
+    <input type="button" value="Calculate" id="btnCalculate" ng-click="calculate()">
+    <div id="divResult" ng-bind="result"></div>
+
+  </section>
+
 </body>
 </html>
