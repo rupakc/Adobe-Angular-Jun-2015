@@ -40,6 +40,7 @@
         }
     </style>
     <script src="angular.min.js"></script>
+    <script src="moment.js"></script>
     <script>
     /*
     Use cases :
@@ -49,8 +50,8 @@
         4. Remove closed bugs - done
         5. Search for a bug - done
         6. Sort the bugs - done
-        7. Display the creation time
-        8. Persist the bugs in the storage (localStorage)
+        7. Display the creation time - done
+        8. Persist the bugs in the storage (localStorage) - done
         9. Persist the bugs in the server
         10. Create the (list/edit/add) screen for 'Project'
         11. Associate the bugs to a project
@@ -74,13 +75,25 @@
     */
 
 
+        var utils = angular.module('utils', []);
+        utils.filter("trimText", function(){
+            return function(data, lengthLimit){
+                return data.length < lengthLimit ? data : data.substr(0,lengthLimit) + "...";
+            }
+        });
 
+        utils.filter("toMoment", function(){
+            return function(data){
+                return moment(data).fromNow();
+            }
+        });
 
-        var bugTrackerApp = angular.module("bugTrackerApp", []);
+        var bugTrackerApp = angular.module("bugTrackerApp", ['utils']);
 
         bugTrackerApp.factory("Bug", function(){
             function Bug(defaults){
                 defaults = defaults || {};
+                this.id = defaults.id || Date.now().toString();
                 this.title = defaults.title || '';
                 this.isClosed = defaults.isClosed || false;
                 this.createdAt = defaults.createdAt || new Date();
@@ -91,40 +104,55 @@
             return Bug;
         });
 
-        bugTrackerApp.controller("bugsController", function($scope, Bug){
+        bugTrackerApp.factory("bugStorage", function(Bug){
+            return {
+                getAll : function(){
+                    var result = [];
+                    for(var i=0; i<localStorage.length; i++){
+                        var key = localStorage.key(i);
+                        var bugData = localStorage.getItem(key);
+                        var bug = new Bug(angular.fromJson(bugData));
+                        result.push(bug);
+                    }
+                    return result;
+                },
+                save : function(bug){
+                    localStorage.setItem(bug.id, angular.toJson(bug));
+                },
+                remove : function(bug){
+                    localStorage.removeItem(bug.id);
+                }
+            };
+        });
+
+        bugTrackerApp.controller("bugsController", function($scope, Bug, bugStorage){
 
             $scope.newBug = '';
             $scope.addNewBug = function(){
                 var bug = new Bug({ title : $scope.newBug });
+                bugStorage.save(bug);
                 $scope.bugs.push(bug);
                 $scope.newBug = '';
             };
-            $scope.bugs = [
-                new Bug({title :"Crashing on launch", isClosed : false}),
-                new Bug({title :"Stack overflow error", isClosed : true}),
-                new Bug({title :"Insufficient memory reported", isClosed : false}),
-                new Bug({title : "this is a very very looooooooooooooooooooooooooong bug", isClosed : false}),
-            ];
+            $scope.bugs = bugStorage.getAll();;
 
             $scope.toggleStatus = function(bug){
                 bug.toggle();
+                bugStorage.save(bug);
             };
 
             $scope.removeClosed = function(){
                 for(var i=$scope.bugs.length -1; i>=0; i--){
                     var bug = $scope.bugs[i];
                     if (bug.isClosed){
+                        bugStorage.remove(bug);
                         $scope.bugs.splice(i,1);
                     }
                 }
             };
         });
 
-        bugTrackerApp.filter("trimText", function(){
-            return function(data, lengthLimit){
-                return data.length < lengthLimit ? data : data.substr(0,lengthLimit) + "...";
-            }
-        });
+
     </script>
 </head>
 <body ng-app="bugTrackerApp">
@@ -168,7 +196,7 @@
                     <div ng-class="{closed : bug.isClosed}">
                         {{bug.title | trimText:titleLimitLength}}
                     </div>
-                    <div class="timeStamp">{{bug.createdAt}}</div>
+                    <div class="timeStamp">{{bug.createdAt | toMoment}}</div>
                 </li>
             </ol>
         </div>
