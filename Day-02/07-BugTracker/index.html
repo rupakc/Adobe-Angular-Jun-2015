@@ -26,17 +26,25 @@
             font-size: 15pt;
             font-weight: bold;
         }
+        div {
+            margin-bottom: 10px;
+        }
+        .sort span{
+            text-decoration: underline;
+            cursor: pointer;
+            color : blue;
+        }
     </style>
     <script src="angular.min.js"></script>
     <script>
     /*
     Use cases :
         1. List the bugs - done
-        2. Add a new bug
-        3. Toggle the 'closed' status of the bug
-        4. Remove closed bugs
-        5. Search for a bug
-        6. Sort the bugs
+        2. Add a new bug - done
+        3. Toggle the 'closed' status of the bug - done
+        4. Remove closed bugs - done
+        5. Search for a bug - done
+        6. Sort the bugs - done
         7. Display the creation time
         8. Persist the bugs in the storage (localStorage)
         9. Persist the bugs in the server
@@ -65,6 +73,7 @@
                 {title :"Crashing on launch", isClosed : false},
                 {title :"Stack overflow error", isClosed : true},
                 {title :"Insufficient memory reported", isClosed : false},
+                {title : "this is a very very looooooooooooooooooooooooooong bug", isClosed : false},
             ];
 
             $scope.toggleStatus = function(bug){
@@ -79,6 +88,16 @@
                     }
                 }
             };
+
+            $scope.getClosedCount = function(){
+                return $scope.bugs.filter(function(bug){
+                    return bug.isClosed;
+                }).length;
+            };
+
+            $scope.getFormattedTitle = function(title){
+                return title.length < 30 ? title : title.substr(0,30) + "...";
+            }
         });
     </script>
 </head>
@@ -86,12 +105,25 @@
     <h1>Bug Tracker</h1>
     <div class="content" ng-controller="bugsController">
         <div class="stats">
-            <span class="closed">5</span>
+            <span class="closed">{{getClosedCount()}}</span>
             /
-            <span>10</span>
+            <span>{{bugs.length}}</span>
         </div>
-        <div class="filter"></div>
-        <div class="sort"></div>
+        <div class="filter">
+            <label for="">Search :</label>
+            <input type="text" ng-model="searchBug.title">
+            <label for="">Closed ?</label>
+            <input type="checkbox" ng-model="searchBug.isClosed">
+            <input type="button" value="Show All" ng-click="searchBug.isClosed = undefined">
+
+        </div>
+        <div class="sort">
+            <label for="">Sort :</label>
+            <span ng-click="sortOrder='title'">title</span>
+            <span ng-click="sortOrder='isClosed'">status</span>
+            <label for="">Desc ? :</label>
+            <input type="checkbox" ng-model="descOrder">
+        </div>
         <div class="editor">
             <label for="">Bug :</label>
             <input type="text" ng-model="newBug">
@@ -101,10 +133,10 @@
         <div class="list">
             <ol>
                 <li
-                    ng-repeat="bug in bugs"
+                    ng-repeat="bug in bugs | filter:searchBug | orderBy:sortOrder:descOrder"
                     ng-click="toggleStatus(bug)"
                     ng-class="{closed : bug.isClosed}"
-                >{{bug}}</li>
+                >{{getFormattedTitle(bug.title)}}</li>
             </ol>
         </div>
         </div>
