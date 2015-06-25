@@ -52,15 +52,22 @@
         11. Associate the bugs to a project
     */
 
+        function Bug(defaults){
+            defaults = defaults || {};
+            this.title = defaults.title || '';
+            this.isClosed = defaults.isClosed || false;
+        }
+        Bug.prototype.toggle = function(){
+            this.isClosed = !this.isClosed;
+        }
+
+
         var bugTrackerApp = angular.module("bugTrackerApp", []);
         bugTrackerApp.controller("bugsController", function($scope){
 
             $scope.newBug = '';
             $scope.addNewBug = function(){
-                var bug = {
-                    title : $scope.newBug,
-                    isClosed : false
-                };
+                var bug = new Bug({ title : $scope.newBug });
                 $scope.bugs.push(bug);
                 $scope.newBug = '';
             };
@@ -70,14 +77,14 @@
             };*/
 
             $scope.bugs = [
-                {title :"Crashing on launch", isClosed : false},
-                {title :"Stack overflow error", isClosed : true},
-                {title :"Insufficient memory reported", isClosed : false},
-                {title : "this is a very very looooooooooooooooooooooooooong bug", isClosed : false},
+                new Bug({title :"Crashing on launch", isClosed : false}),
+                new Bug({title :"Stack overflow error", isClosed : true}),
+                new Bug({title :"Insufficient memory reported", isClosed : false}),
+                new Bug({title : "this is a very very looooooooooooooooooooooooooong bug", isClosed : false}),
             ];
 
             $scope.toggleStatus = function(bug){
-                bug.isClosed = !bug.isClosed;
+                bug.toggle();
             };
 
             $scope.removeClosed = function(){
@@ -89,14 +96,12 @@
                 }
             };
 
-            $scope.getClosedCount = function(){
-                return $scope.bugs.filter(function(bug){
-                    return bug.isClosed;
-                }).length;
-            };
 
-            $scope.getFormattedTitle = function(title){
-                return title.length < 30 ? title : title.substr(0,30) + "...";
+        });
+
+        bugTrackerApp.filter("trimText", function(){
+            return function(data, lengthLimit){
+                return data.length < lengthLimit ? data : data.substr(0,lengthLimit) + "...";
             }
         });
     </script>
@@ -105,9 +110,12 @@
     <h1>Bug Tracker</h1>
     <div class="content" ng-controller="bugsController">
         <div class="stats">
-            <span class="closed">{{getClosedCount()}}</span>
+            <span class="closed">{{(bugs | filter:{isClosed:true}).length}}</span>
             /
             <span>{{bugs.length}}</span>
+        </div>
+        <div>
+            <input type="range" ng-model="titleLimitLength" min="10" max="100">
         </div>
         <div class="filter">
             <label for="">Search :</label>
@@ -136,7 +144,7 @@
                     ng-repeat="bug in bugs | filter:searchBug | orderBy:sortOrder:descOrder"
                     ng-click="toggleStatus(bug)"
                     ng-class="{closed : bug.isClosed}"
-                >{{getFormattedTitle(bug.title)}}</li>
+                >{{bug.title | trimText:titleLimitLength}}</li>
             </ol>
         </div>
         </div>
