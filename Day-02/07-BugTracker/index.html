@@ -34,6 +34,10 @@
             cursor: pointer;
             color : blue;
         }
+        .timeStamp {
+            font-size: small;
+            font-style: italic;
+        }
     </style>
     <script src="angular.min.js"></script>
     <script>
@@ -50,20 +54,44 @@
         9. Persist the bugs in the server
         10. Create the (list/edit/add) screen for 'Project'
         11. Associate the bugs to a project
+
+        local storage
+        =============
+        window.localStorage
+            key/value store
+            both key and value should be string
+
+            apis
+            ====
+            setItem(key, value)
+            getItem(key) //=> value
+            removeItem(key)
+            key(index) // => key
+            clear()
+            length
+
+        using angular.toJson() and angular.fromJson() for object to json and vice versa
     */
 
-        function Bug(defaults){
-            defaults = defaults || {};
-            this.title = defaults.title || '';
-            this.isClosed = defaults.isClosed || false;
-        }
-        Bug.prototype.toggle = function(){
-            this.isClosed = !this.isClosed;
-        }
+
 
 
         var bugTrackerApp = angular.module("bugTrackerApp", []);
-        bugTrackerApp.controller("bugsController", function($scope){
+
+        bugTrackerApp.factory("Bug", function(){
+            function Bug(defaults){
+                defaults = defaults || {};
+                this.title = defaults.title || '';
+                this.isClosed = defaults.isClosed || false;
+                this.createdAt = defaults.createdAt || new Date();
+            }
+            Bug.prototype.toggle = function(){
+                this.isClosed = !this.isClosed;
+            };
+            return Bug;
+        });
+
+        bugTrackerApp.controller("bugsController", function($scope, Bug){
 
             $scope.newBug = '';
             $scope.addNewBug = function(){
@@ -136,8 +164,12 @@
                 <li
                     ng-repeat="bug in bugs | filter:searchBug | orderBy:sortOrder:descOrder"
                     ng-click="toggleStatus(bug)"
-                    ng-class="{closed : bug.isClosed}"
-                >{{bug.title | trimText:titleLimitLength}}</li>
+                >
+                    <div ng-class="{closed : bug.isClosed}">
+                        {{bug.title | trimText:titleLimitLength}}
+                    </div>
+                    <div class="timeStamp">{{bug.createdAt}}</div>
+                </li>
             </ol>
         </div>
         </div>
