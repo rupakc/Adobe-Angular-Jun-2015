@@ -71,11 +71,6 @@
                 $scope.bugs.push(bug);
                 $scope.newBug = '';
             };
-
-            /*$scope.addNewBug = function(bug){
-                $scope.bugs.push(bug);
-            };*/
-
             $scope.bugs = [
                 new Bug({title :"Crashing on launch", isClosed : false}),
                 new Bug({title :"Stack overflow error", isClosed : true}),
@@ -95,8 +90,6 @@
                     }
                 }
             };
-
-
         });
 
         bugTrackerApp.filter("trimText", function(){
