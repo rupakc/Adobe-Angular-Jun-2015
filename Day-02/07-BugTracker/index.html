@@ -8,6 +8,7 @@
             color : red;
             text-decoration: line-through;
             font-weight: bold;
+            font-style: italic;
         }
         li{
             list-style : none;
@@ -16,6 +17,7 @@
             border-radius: 5px;
             padding: 5px;
             background: -webkit-linear-gradient(top, white 0%, gray 100%);
+            cursor: pointer;
         }
         ol {
             width : 50%;
@@ -52,10 +54,14 @@
             };*/
 
             $scope.bugs = [
-               "Crashing on launch",
-               "Stack overflow error",
-               "Insufficient memory reported"
+                {title :"Crashing on launch", isClosed : false},
+                {title :"Stack overflow error", isClosed : true},
+                {title :"Insufficient memory reported", isClosed : false},
             ];
+
+            $scope.toggleStatus = function(bug){
+                bug.isClosed = !bug.isClosed;
+            };
         });
     </script>
 </head>
@@ -72,9 +78,12 @@
             <input type="button" value="Remove Closed">
         </div>
         <div class="list">
-
             <ol>
-                <li ng-repeat="bug in bugs" >{{bug}}</li>
+                <li
+                    ng-repeat="bug in bugs"
+                    ng-click="toggleStatus(bug)"
+                    ng-class="{closed : bug.isClosed}"
+                >{{bug}}</li>
             </ol>
         </div>
         </div>
