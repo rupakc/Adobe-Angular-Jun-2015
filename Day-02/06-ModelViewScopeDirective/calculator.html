@@ -54,7 +54,8 @@
   <header >
       <h4 ng-bind="userName"></h4>
   </header>
-  <section ng-controller="calculatorController">
+  <section ng-controller="calculatorController" style="border : 1px solid black; padding : 20px;">
+    <input type="text" ng-model="userName">
     <h3 ng-bind="getMessage()"></h3>
     <input type="text" name="" id="txtNumber1" ng-model="number1">
     <select ng-model="operation">
