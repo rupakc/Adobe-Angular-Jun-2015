@@ -22,6 +22,10 @@
         ol {
             width : 50%;
         }
+        .stats span{
+            font-size: 15pt;
+            font-weight: bold;
+        }
     </style>
     <script src="angular.min.js"></script>
     <script>
@@ -45,7 +49,11 @@
 
             $scope.newBug = '';
             $scope.addNewBug = function(){
-                $scope.bugs.push($scope.newBug);
+                var bug = {
+                    title : $scope.newBug,
+                    isClosed : false
+                };
+                $scope.bugs.push(bug);
                 $scope.newBug = '';
             };
 
@@ -62,20 +70,33 @@
             $scope.toggleStatus = function(bug){
                 bug.isClosed = !bug.isClosed;
             };
+
+            $scope.removeClosed = function(){
+                for(var i=$scope.bugs.length -1; i>=0; i--){
+                    var bug = $scope.bugs[i];
+                    if (bug.isClosed){
+                        $scope.bugs.splice(i,1);
+                    }
+                }
+            };
         });
     </script>
 </head>
 <body ng-app="bugTrackerApp">
     <h1>Bug Tracker</h1>
     <div class="content" ng-controller="bugsController">
-
+        <div class="stats">
+            <span class="closed">5</span>
+            /
+            <span>10</span>
+        </div>
         <div class="filter"></div>
         <div class="sort"></div>
         <div class="editor">
             <label for="">Bug :</label>
             <input type="text" ng-model="newBug">
             <input type="button" value="Add Bug" ng-click="addNewBug()">
-            <input type="button" value="Remove Closed">
+            <input type="button" value="Remove Closed" ng-click="removeClosed()">
         </div>
         <div class="list">
             <ol>
