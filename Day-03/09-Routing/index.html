@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Routing Demo</title>
+    <script src="angular.js"></script>
+    <script src="angular-route.js"></script>
+    <script>
+        var myApp = angular.module('myApp',['ngRoute']);
+        myApp.config(function($routeProvider){
+            $routeProvider
+                .when("/products", {
+                    //template : "<h3>Products</h3>"
+                    templateUrl : 'templates/products.html',
+                    controller : 'productsController'
+                })
+                .when("/products/:productId", {
+                    //template : "<h3>Products</h3>"
+                    templateUrl : 'templates/productInfo.html',
+                    controller : 'productInfoController'
+                })
+                .when("/customers", {
+                    //template : "<h3>Customers</h3>"
+                templateUrl : 'templates/customers.html'
+                })
+                .otherwise({
+                    redirectTo : '/products'
+                });
+        });
+        myApp.service("productsService", function(){
+            this.getAll = function(){
+                return [
+                    {id : 1, name : "Pen", cost : 40, units : 20, desc : "Laborum illum ab litteris familiaritatem, arbitror si vidisse, cernantur et aliqua, noster probant e excepteur. Eu quibusdam transferrem, ipsum litteris arbitrantur iis multos ubi ut labore appellat, doctrina ea irure. Consequat ne excepteur, ex quae tamen ex ingeniis ea ex illum varias de voluptate ne ne ubi  philosophari, an anim amet multos mandaremus, an quem pariatur mandaremus, te probant aut offendit e ab amet comprehenderit. Fore adipisicing litteris malis" },
+                    {id : 2, name : "Pencil", cost : 90, units : 80, desc : "Laborum illum ab litteris familiaritatem, arbitror si vidisse, cernantur et aliqua, noster probant e excepteur. Eu quibusdam transferrem, ipsum litteris arbitrantur iis multos ubi ut labore appellat, doctrina ea irure. Consequat ne excepteur, ex quae tamen ex ingeniis ea ex illum varias de voluptate ne ne ubi  philosophari, an anim amet multos mandaremus, an quem pariatur mandaremus, te probant aut offendit e ab amet comprehenderit. Fore adipisicing litteris malis"},
+                    {id : 3, name : "Mouse", cost : 80, units : 50, desc : "Laborum illum ab litteris familiaritatem, arbitror si vidisse, cernantur et aliqua, noster probant e excepteur. Eu quibusdam transferrem, ipsum litteris arbitrantur iis multos ubi ut labore appellat, doctrina ea irure. Consequat ne excepteur, ex quae tamen ex ingeniis ea ex illum varias de voluptate ne ne ubi  philosophari, an anim amet multos mandaremus, an quem pariatur mandaremus, te probant aut offendit e ab amet comprehenderit. Fore adipisicing litteris malis"},
+                    {id : 4, name : "Marker", cost : 60, units : 90, desc : "Laborum illum ab litteris familiaritatem, arbitror si vidisse, cernantur et aliqua, noster probant e excepteur. Eu quibusdam transferrem, ipsum litteris arbitrantur iis multos ubi ut labore appellat, doctrina ea irure. Consequat ne excepteur, ex quae tamen ex ingeniis ea ex illum varias de voluptate ne ne ubi  philosophari, an anim amet multos mandaremus, an quem pariatur mandaremus, te probant aut offendit e ab amet comprehenderit. Fore adipisicing litteris malis"},
+                    {id : 5, name : "Laptop", cost : 20, units : 40, desc : "Laborum illum ab litteris familiaritatem, arbitror si vidisse, cernantur et aliqua, noster probant e excepteur. Eu quibusdam transferrem, ipsum litteris arbitrantur iis multos ubi ut labore appellat, doctrina ea irure. Consequat ne excepteur, ex quae tamen ex ingeniis ea ex illum varias de voluptate ne ne ubi  philosophari, an anim amet multos mandaremus, an quem pariatur mandaremus, te probant aut offendit e ab amet comprehenderit. Fore adipisicing litteris malis"},
+                ]
+            }
+        });
+        myApp.controller("productInfoController", function($scope, $routeParams, productsService){
+           var reqProductId = parseInt($routeParams.productId,10);
+           $scope.product = productsService.getAll().filter(function(p){
+               return p.id === reqProductId })[0]
+        });
+        myApp.controller("productsController", function($scope, productsService){
+            $scope.products = productsService.getAll();
+        });
+    </script>
+
+</head>
+<body ng-app="myApp">
+    <h1>Flapkart</h1>
+    <nav><a href="#/customers">Customers</a> <a href="#/products">Products</a></nav>
+    <div class="content">
+        <ng-view></ng-view>
+    </div>
+</body>
+</html>
