@@ -92,18 +92,56 @@
             };
             return Bug;
         });
-        bugTrackerApp.service("bugStorage", function(Bug){
+        bugTrackerApp.service("bugStorage", function($http, Bug, $q){
 
             //from json server
             this.getAll = function(){
-                var result = [];
-                for(var i=0; i<localStorage.length; i++){
-                    var key = localStorage.key(i);
-                    var bugData = localStorage.getItem(key);
-                    var bug = new Bug(angular.fromJson(bugData));
-                    result.push(bug);
-                }
-                return result;
+
+                /*1.  Using $q */
+
+                /*var deferred = $q.defer();
+
+                var httpPromise = $http.get("http://localhost:3000/bugs");
+                httpPromise.then(function(response){
+                    console.log(response);
+                    var result = response.data.map(function(obj){
+                        return new Bug(obj);
+                    });
+                    deferred.resolve(result);
+                });
+
+                return deferred.promise;*/
+
+                /*2. Using the promise returned by $http.then() */
+                /*var httpPromise = $http.get("http://localhost:3000/bugs");
+                return httpPromise.then(function(response){
+                    var result = response.data.map(function(obj){
+                        return new Bug(obj);
+                    });
+                    return result;
+                });*/
+
+                return $http
+                    .get("http://localhost:3000/bugs")
+                    .then(function(response){
+                        return response.data.map(function(obj){
+                            return new Bug(obj);
+                        });
+                    });
+
+                /*3. Using ES6 Promise*/
+                /*var myPromise = new Promise(function(resolve, reject){
+                    var httpPromise = $http.get("http://localhost:3000/bugs");
+                    httpPromise.then(function(response){
+                        console.log(response);
+                        var result = response.data.map(function(obj){
+                            return new Bug(obj);
+                        });
+                        resolve(result);
+                    });
+                });
+                return myPromise; */
+
             };
             this.save = function(bug){
                 localStorage.setItem(bug.id, angular.toJson(bug));
@@ -126,14 +164,20 @@
 
             /*Load the default bugs*/
             $scope.bugs = [];
-            $http
-                .get("http://localhost:3000/bugs")
-                .then(function(response){
-                    console.log(response);
-                    $scope.bugs = response.data.map(function(obj){
-                        return new Bug(obj);
-                    });
+
+            //Using ES6 Promise
+            /*bugStorage.getAll().then(function(bugs){
+                console.log(bugs);
+                $scope.$apply(function(){
+                    $scope.bugs = bugs;
                 });
+            });*/
+
+            //Using $q promise
+            bugStorage.getAll().then(function(bugs){
+                $scope.bugs = bugs;
+            });
+
 
             $scope.toggleStatus = function(bug){
                 bug.toggle();
