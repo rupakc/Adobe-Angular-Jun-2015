@@ -45,7 +45,7 @@
         myApp.controller("productInfoController", function($scope, $routeParams, productsService){
            var reqProductId = parseInt($routeParams.productId,10);
            $scope.product = productsService.getAll().filter(function(p){
-               return p.id === reqProductId })[0]
+               return p.id === reqProductId })[0];
         });
         myApp.controller("productsController", function($scope, productsService){
             $scope.products = productsService.getAll();
