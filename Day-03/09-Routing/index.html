@@ -7,21 +7,25 @@
     <script src="angular-route.js"></script>
     <script>
         var myApp = angular.module('myApp',['ngRoute']);
-        myApp.config(function($routeProvider){
+        myApp.config(function($routeProvider, $locationProvider){
+            $locationProvider.html5Mode({
+                enabled : true,
+                requireBase : false
+            });
             $routeProvider
                 .when("/products", {
                     //template : "<h3>Products</h3>"
-                    templateUrl : 'templates/products.html',
+                    templateUrl : '/templates/products.html',
                     controller : 'productsController'
                 })
                 .when("/products/:productId", {
                     //template : "<h3>Products</h3>"
-                    templateUrl : 'templates/productInfo.html',
+                    templateUrl : '/templates/productInfo.html',
                     controller : 'productInfoController'
                 })
                 .when("/customers", {
                     //template : "<h3>Customers</h3>"
-                templateUrl : 'templates/customers.html'
+                templateUrl : '/templates/customers.html'
                 })
                 .otherwise({
                     redirectTo : '/products'
@@ -51,7 +55,7 @@
 </head>
 <body ng-app="myApp">
     <h1>Flapkart</h1>
-    <nav><a href="#/customers">Customers</a> <a href="#/products">Products</a></nav>
+    <nav><a href="/customers">Customers</a> <a href="/products">Products</a></nav>
     <div class="content">
         <ng-view></ng-view>
     </div>
