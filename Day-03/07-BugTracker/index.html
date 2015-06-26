@@ -76,8 +76,19 @@
 
 
         var utils = angular.module('utils', []);
-        utils.filter("trimText", function(){
+        /*utils.factory("defaultTrimTextLengthLimit", function(){
+            return 20;
+        });*/
+        utils.value("appDefaults", {
+            defaultTrimTextLengthLimit : 20,
+            getDefaultLimit : function(){
+                return 30;
+            }
+        });
+        utils.filter("trimText", function(appDefaults){
             return function(data, lengthLimit){
+                //lengthLimit = lengthLimit || appDefaults.defaultTrimTextLengthLimit;
+                lengthLimit = lengthLimit || appDefaults.getDefaultLimit();
                 return data.length < lengthLimit ? data : data.substr(0,lengthLimit) + "...";
             }
         });
@@ -103,6 +114,21 @@
             };
             return Bug;
         });
+
+        /*bugTrackerApp.value("Bug", (function(){
+            function Bug(defaults){
+                defaults = defaults || {};
+                this.id = defaults.id || Date.now().toString();
+                this.title = defaults.title || '';
+                this.isClosed = defaults.isClosed || false;
+                this.createdAt = defaults.createdAt || new Date();
+            }
+            Bug.prototype.toggle = function(){
+                this.isClosed = !this.isClosed;
+            };
+            return Bug;
+        })());*/
+
 
         /*bugTrackerApp.factory("bugStorage", function(Bug){
             return {
